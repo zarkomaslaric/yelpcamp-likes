@@ -14,7 +14,35 @@
                 <img class="img-responsive" src="<%= campground.image %>">
                 <div class="caption-full">
                     <h4 class="pull-right">$9.00/night</h4>
-                    <h4><a><%=campground.name%></a></h4>
+                    <h4>
+                        <a><%= campground.name %></a>
+                    </h4>
+                    <div class="pull-right">
+                        <button type="button" class="btn btn-xs btn-primary" data-toggle="modal"
+                                data-target="#campgroundLikes">
+                            <span>Total likes: <i class="fas fa-thumbs-up"></i> <%= campground.likes.length %></span>
+                        </button>
+                    </div>
+                    <div style="padding-bottom: 10px;">
+                        <form action="/campgrounds/<%= campground._id %>/like" method="POST">
+                            <div class="btn-group">
+                                <% if (currentUser && campground.likes.some(function (like) {
+                                    return like.equals(currentUser._id)
+                                })) { %>
+                                <button class="btn btn-sm btn-primary">
+                                    <i class="fas fa-thumbs-up"></i> Liked (<%= campground.likes.length %>)
+                                </button>
+                                <% } else { %>
+                                <button class="btn btn-sm btn-secondary">
+                                    <i class="fas fa-thumbs-up"></i> Like (<%= campground.likes.length %>)
+                                </button>
+                                <% } %>
+                                <button type="button" class="btn btn-sm btn-default" data-toggle="modal"
+                                        data-target="#campgroundLikes">See more details
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                     <p><%= campground.description %></p>
                     <p>
                         <em>Submitted By <%= campground.author.username %></em>
@@ -24,12 +52,13 @@
                         <form id="delete-form" action="/campgrounds/<%= campground._id %>?_method=DELETE" method="POST">
                             <button class="btn btn-xs btn-danger">Delete</button>
                         </form>
-                    <% }%>
+                    <% } %>
                 </div>
             </div>
             <div class="well">
                 <div class="text-right">
-                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New Comment</a>
+                    <a class="btn btn-success" href="/campgrounds/<%= campground._id %>/comments/new">Add New
+                        Comment</a>
                 </div>
                 <hr>
                 <% campground.comments.forEach(function(comment){ %>
@@ -38,18 +67,57 @@
                             <strong><%= comment.author.username %></strong>
                             <span class="pull-right">10 days ago</span>
                             <p>
-                                <%= comment.text %> 
+                                <%= comment.text %>
                             </p>
-                        <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
-                            <a class="btn btn-xs btn-warning" 
-                               href="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>/edit">Edit</a>
-                            <form id="delete-form" action="/campgrounds/<%=campground._id %>/comments/<%=comment._id %>?_method=DELETE" method="POST">
-                                <input type="submit" class="btn btn-xs btn-danger" value="Delete">
-                            </form>
-                        <% } %>
+                            <% if(currentUser && comment.author.id.equals(currentUser._id)){ %>
+                                <a class="btn btn-xs btn-warning"
+                                   href="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>/edit">Edit</a>
+                                <form id="delete-form"
+                                      action="/campgrounds/<%= campground._id %>/comments/<%= comment._id %>?_method=DELETE"
+                                      method="POST">
+                                    <input type="submit" class="btn btn-xs btn-danger" value="Delete">
+                                </form>
+                            <% } %>
                         </div>
                     </div>
                 <% }) %>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Campground Likes Modal -->
+<div id="campgroundLikes" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Campground likes: <%= campground.likes.length %></h4>
+            </div>
+            <div class="modal-body">
+                <table class="table table-striped">
+                    <thead>
+                    <tr>
+                        <th>Liked by:</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <% campground.likes.forEach(function(like) { %>
+                        <tr>
+                            <td><span class="badge"><i class="fas fa-user"></i></span> <%= like.username %></td>
+                        </tr>
+                    <% }); %>
+                    <% if (campground.likes.length === 0) { %>
+                        <tr>
+                            <td><em>No likes yet.</em></td>
+                        </tr>
+                    <% } %>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
